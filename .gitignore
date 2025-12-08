@@ -1,3 +1,6 @@
 tt
 info.yaml
 runs
+*.rpt.*
+*.swo
+*.swp
