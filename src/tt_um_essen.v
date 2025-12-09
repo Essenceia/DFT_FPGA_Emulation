@@ -123,9 +123,34 @@ wire [UREG_DATA_W-1:0] ureg_data;
 (* keep = "true" *) wire sce;
 (* keep = "true" *) wire sci;
 /* verilator lint_on UNUSEDSIGNAL */
-/* verilator lint_off UNDRIVEN */
-(* keep = "true" *) wire sco;
-/* verilator lint_on UNDRIVEN */
+wire sco;
+
+`ifdef SCL_gf180mcu_fd_sc_mcu7t5v0
+wire unused_sce;
+wire unused_sci;
+/* adding instances since openroad dft can't pick up 
+ * nets for connecting them to the scan chain */ 
+/* verilator lint_off PINMISSING */
+(* keep = "true" *) gf180mcu_fd_sc_mcu7t5v0__buf_1 m_sce_buff(
+.I(sce),
+.Z(unused_sce)
+);
+
+(* keep = "true" *) gf180mcu_fd_sc_mcu7t5v0__buf_1 m_sci_buff(
+.I(sci),
+.Z(unused_sci)
+);
+
+(* keep = "true" *) gf180mcu_fd_sc_mcu7t5v0__buf_1 m_sco_buff(
+.I(1'bX),
+.Z(sco)
+);
+/* verilator lint_on PINMISSING */
+`else
+assign sco = 1'bX;
+`endif
+
+
 
 jtag #(.IR_W(3), 
 	.VERSION_NUM(4'h1),
