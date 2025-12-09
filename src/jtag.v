@@ -37,9 +37,9 @@ module jtag #(
 	input wire  [UREG_DATA_W-1:0] ureg_data_i,
 
 	/* scan chain */ 
-	(* keep = "true" *) output wire scan_enable_o,
-	(* keep = "true" *) output wire scan_in_o,
-	(* keep = "true" *) input  wire	scan_out_i
+	output wire scan_enable_o,
+	output wire scan_in_o,
+	input  wire	scan_out_i
 );
 /* supported instruction opcodes
  * some instructions opcodes can be implementation defined, this isn't
