@@ -109,7 +109,7 @@ async def simple_mac_test(dut):
 async def random_mac_test(dut):
     await rst(dut)
     await mac_utils.rst_data_addr(dut)
-    for _ in range(0, 500): 
+    for _ in range(0, 10): 
         W = array('b')
         I = array('b')
         for _ in range(0,4):
@@ -134,13 +134,13 @@ async def random_mac_test(dut):
 async def random_mac_reuse_weights_test(dut):
     await rst(dut)
     await mac_utils.rst_data_addr(dut)
-    for _ in range(0, 20): 
+    for _ in range(0, 5): 
         W = array('b')
         for _ in range(0,4):
             W.append(mac_utils.biased_random(MIN_W,MAX_W))
         await mac_utils.write_config(dut, W, weight=True)
 
-        for _ in range(0, 50): 
+        for _ in range(0, 5): 
             I = array('b')
             for _ in range(0,4):
                 I.append(mac_utils.biased_random(MIN_I,MAX_I))

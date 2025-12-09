@@ -4,3 +4,8 @@ runs
 *.rpt.*
 *.swo
 *.swp
+*.vcd
+*.xml
+sim_builf
+sim_build
+__pycache__
