@@ -118,6 +118,15 @@ assign uio_out[6] = tdo;
 wire [UREG_ADDR_W-1:0] ureg_addr;
 wire [UREG_DATA_W-1:0] ureg_data;
 
+// Scan chain, connected during implementation
+/* verilator lint_off UNUSEDSIGNAL */
+(* keep = "true" *) wire sce;
+(* keep = "true" *) wire sci;
+/* verilator lint_on UNUSEDSIGNAL */
+/* verilator lint_off UNDRIVEN */
+(* keep = "true" *) wire sco;
+/* verilator lint_on UNDRIVEN */
+
 jtag #(.IR_W(3), 
 	.VERSION_NUM(4'h1),
 	.PART_NUM(16'hbeef),
@@ -142,7 +151,11 @@ jtag #(.IR_W(3),
 	.bsc_tdo_i(bsc_tdo),
 
 	.ureg_addr_o(ureg_addr),
-	.ureg_data_i(ureg_data)
+	.ureg_data_i(ureg_data),
+
+	.scan_enable_o(sce),
+	.scan_in_o(sci),
+	.scan_out_i(sco)
 );
 
 // MAC design
