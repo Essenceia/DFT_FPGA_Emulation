@@ -25,4 +25,4 @@ add_scan_chain
 set def_file [make_result_file scan_chain_inserted.def]
 write_def $def_file
 
-write_scan_chain_translate {translation.csv} [odb::get_block]
+write_scan_chain_translate [make_result_file translation.csv] [odb::get_block]
