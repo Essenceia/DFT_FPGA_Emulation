@@ -86,7 +86,7 @@ proc write_scan_chain_translate { filename block } {
 	                    set last_edge "$current_edge"
 	                } else {
 					set q_name [[[[$inst getInst] getFirstOutput] getNet] getName] 
-					puts $csv_out "[[$inst getInst] getName], $q_name"
+					puts $csv_out "[[$inst getInst] getName],$q_name"
 	                }
 	            }
 	        }
