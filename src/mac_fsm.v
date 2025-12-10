@@ -77,13 +77,13 @@ assign mac_step_o = mac_step_q;
 /* Capture MAC output control */ 
 reg [3:0] rd_fsm_q; 
 localparam RD_IDLE  = 4'b0001;
-localparam RD_0     = 4'd0010; 
-localparam RD_1_2   = 4'd0100; 
+localparam RD_0     = 4'b0010; 
+localparam RD_1_2   = 4'b0100; 
 localparam RD_3     = 4'b1000;
 
 reg [N-1:0] res_rd_q;
 
-always @(p -verilog_define VIVADO_SYNTHESIS=1osedge clk) begin
+always @(posedge clk) begin
 	if (~rst_n | data_v_i & data_rst_addr_i) begin
 		rd_fsm_q <= RD_IDLE; 
 	end else begin
