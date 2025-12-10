@@ -7,6 +7,11 @@
 `timescale 1ns / 1ps
 `default_nettype none 
 
+`define VIVADO_DONT_TOUCH \
+	`ifdef VIVADO_SYNTHESIS \
+		(* dont_touch = "true" *) \
+	`endif
+
 module mac_unit #(
 	parameter W = 8
 	)(
@@ -35,6 +40,7 @@ reg  [W-1:0]  weight_q;
 wire [2*W-1:0] mul;
 wire           mul_sign; 
 
+`VIVADO_DONT_TOUCH 
 wire [2*W-1:0] add_extended; 
 wire [W-1:0]   trunc_add; // truncated addition 
 wire [W-1:0]   remain_add; 

@@ -1,8 +1,9 @@
 set project_path [lindex $argv 0]
 set checkpoint_path [lindex $argv 1]
-if { $argc > 2 } {
-	set enable_debug_core [lindex $argv 2]
-	set debug_probes_path [lindex $argv 3]
+set enable_scan_chain [lindex $argv 2]
+if { $argc > 3 } {
+	set enable_debug_core [lindex $argv 3]
+	set debug_probes_path [lindex $argv 4]
 } else {
 	set enable_debug_core 0
 	set debug_probes_path "/tmp/dump"
@@ -12,7 +13,11 @@ puts "Implementation script called with project path $project_path, generating c
 open_project $project_path 
 
 # synth
-synth_design -top emulator
+if { $enable_scan_chain } {
+	synth_design -top emulator -verilog_define VIVADO_SYNTHESIS=1 -flatten_hierarchy none -no_lc -keep_equivalent_registers -no_srlextract -max_bram 0 -max_uram 0
+} else {
+	synth_design -top emulator
+}
 
 if { $enable_debug_core } {
 	source debug_core.tcl

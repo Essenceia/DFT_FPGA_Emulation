@@ -100,7 +100,3 @@ set_input_delay -clock [get_clocks clk_bus_i] -max 11.2 [get_ports -regexp data_
 
 set_output_delay -clock [get_clocks clk_bus_i] -min -1.0 [get_ports -regexp res.*]
 set_output_delay -clock [get_clocks clk_bus_i] -max 5.5 [get_ports -regexp res.*]
-
-# keep hier needed to help with matching regs between asic impl and fpga impl
-set_property KEEP_HIERARCHY true [get_cells]
-
