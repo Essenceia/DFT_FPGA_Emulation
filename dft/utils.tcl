@@ -60,15 +60,10 @@ proc write_scan_chain_translate { filename block } {
 	}
 	foreach chain $chains {
 		puts  "Writing scan chain '[$chain getName]' to file"
-	#puts $csv_out "- name: '[$chain getName]'"
-	#puts $csv_out "  partitions:"
 	    set partitions [$chain getScanPartitions]
 	    foreach partition $partitions {
-	#puts $csv_out "  - name: '[$partition getName]'"
-	#puts $csv_out "    scan_lists:"
 	        set lists [$partition getScanLists]
 	        foreach list $lists {
-	#puts $csv_out "    - insts:"
 	            set insts [$list getScanInsts]
 	            set last_clk "\$"
 	            set last_edge "\$"
@@ -76,7 +71,6 @@ proc write_scan_chain_translate { filename block } {
 	                set current_clk [$inst getScanClock]
 	                set current_edge [$inst getClockEdge]
 	                if { "$last_clk" != "$current_clk" || "$last_edge" != "$current_edge" } {
-	#puts $csv_out "      - name: '[[$inst getInst] getName]'"
 	                    set inv_string ""
 	                    if { "$current_edge" == "1" } {
 	                        set inv_string "!"
