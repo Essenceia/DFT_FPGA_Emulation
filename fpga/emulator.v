@@ -156,9 +156,9 @@ debounce m_switch_debounce(
 	.switch_o(ena)
 );
 
-/* dummy mux for reference */
+/* dummy mux for referencing in netlist manipulation */
 (* keep = "true" *) wire mi0, mi1, ms, mux_res;
-(* keep = "true" *) scan_mux m_smux (
+(* dont_touch = "true" *) scan_mux m_smux (
 	.data_i(mi0),
 	.scan_i(mi1),
 	.scan_enable_i(ms),
