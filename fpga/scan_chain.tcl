@@ -45,17 +45,52 @@ proc rework_scan_chain_names { scan_chain } {
 	return $newsc
 }
 
+proc search_net_pattern { original_elem elem dic } {
+	set pattern {.*}
+	set cell [get_nets -hierarchical -regexp $pattern$elem$pattern ]
+	if {[string compare $cell "" ] == 0} {
+		puts "\[ScanChain 3\] Warning: net not found for pattern $elem"
+	} else {
+		dict set dic $original_elem $cell 
+	}
+	return $dic
+}
+
 proc check_net_equivalence { scan_chain } {
+	set sc_dict [dict create]
 	set_msg_config -id "ScanChain 1" -limit -1 -new_severity WARNING	
+	set_msg_config -id "ScanChain 3" -limit -1 -new_severity WARNING	
+	set_msg_config -id "ScanChain 4" -limit -1 -new_severity WARNING	
+	set_msg_config -id "ScanChain 5" -limit -1 -new_severity WARNING	
 	set_msg_config -id "ScanChain 2" -limit -1 -new_severity INFO
 	puts "Hello"	
 	foreach elem $scan_chain {
 		set pattern {.*}
 		set cell [get_nets -hierarchical -regexp $pattern$elem$pattern ]
 		if {[string compare $cell "" ] == 0 } {
-			puts "\[ScanChain 1\] Warning: cell not found for scan chain ellement $elem"
+			#puts "\[ScanChain 1\] Warning: cell not found for scan chain ellement $elem"
+			# check generate blocks
+			set elem2 ""
+			set elem3 ""
+			regsub -all {\.} $elem {.*} elem2
+			regsub -all {_q} $elem2 {_q_reg.*} elem3
+			set cell2 [get_nets -hierarchical -regexp $pattern$elem2$pattern ]
+			if {[string compare $cell2 "" ] == 0} {
+				#puts "\[ScanChain 3\] Warning: cell not found after rework $elem2 ( $elem )"
+				set cell [get_nets -hierarchical -regexp $pattern$elem3$pattern ]
+				if {[string compare $cell "" ] == 0} {
+					puts "\[ScanChain 4\] Warning: cell not found after rework $elem3 ( $elem )"
+				} else { 
+					dict set sc_dict $elem $cell
+				}
+			} else {
+				dict set sc_dict $elem $cell2
+			}
+			
 		} else {
-			puts "\[ScanChain 2\] Info: cell match found for scan chain ellement $elem got $cell"
+			dict set sc_dict $elem $cell
+			#puts "\[ScanChain 2\] Info: cell match found for scan chain ellement $elem got $cell"
 		}
 	}
+	#return $sc_dict
 }

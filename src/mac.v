@@ -69,7 +69,7 @@ endgenerate
 /* Systolic array */ 
 
 logic [W-1:0] data_unit[N-1:0][N-1:0];
-logic [W-1:0] data_flow_right[N-1:0][N-1:0];
+logic [W-1:0] data_flow_right[NN-1:0];
 logic [W-1:0] data_top_unit[N-1:0][N-1:0];
 logic [W-1:0] res_unit[N-1:0][N-1:0];
 
@@ -79,7 +79,7 @@ generate
 	for(y=0; y<N; y=y+1) begin: g_data_unit
 		assign data_unit[0][y] = data_input_q[y];
 		for(x=1; x<N; x=x+1) begin: g_data_unit_flow
-			assign data_unit[x][y] = data_flow_right[x-1][y];
+			assign data_unit[x][y] = data_flow_right[N*y+(x-1)];
 		end
 	end
 
@@ -107,7 +107,7 @@ generate
 				.jtag_ureg_addr_i(jtag_ureg_addr_i[1:0]),
 				.jtag_ureg_data_o(jtag_ureg_data[y*N+x]),
 
-				.data_o(data_flow_right[x][y]),
+				.data_o(data_flow_right[y*N+x]),
 				.res_o(res_unit[x][y])
 			);		
 		end
