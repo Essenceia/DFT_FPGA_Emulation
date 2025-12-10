@@ -46,6 +46,53 @@ proc add_scan_chain { } {
 	report_dont_touch
 }
 
+proc get_ff_q_net_name { inst } {
 	
-	 
+}
+	
+proc write_scan_chain_translate { filename block } {
+	set csv_out [open "$filename" "w"]
+	set dft [$block getDft]
+	set chains [$dft getScanChains]
+	if { [llength $chains] > 1 } {
+		puts "Warning: expecting a single chain !"
+		error
+	}
+	foreach chain $chains {
+		puts  "Writing scan chain '[$chain getName]' to file"
+	#puts $csv_out "- name: '[$chain getName]'"
+	#puts $csv_out "  partitions:"
+	    set partitions [$chain getScanPartitions]
+	    foreach partition $partitions {
+	#puts $csv_out "  - name: '[$partition getName]'"
+	#puts $csv_out "    scan_lists:"
+	        set lists [$partition getScanLists]
+	        foreach list $lists {
+	#puts $csv_out "    - insts:"
+	            set insts [$list getScanInsts]
+	            set last_clk "\$"
+	            set last_edge "\$"
+	            foreach inst $insts {
+	                set current_clk [$inst getScanClock]
+	                set current_edge [$inst getClockEdge]
+	                if { "$last_clk" != "$current_clk" || "$last_edge" != "$current_edge" } {
+	#puts $csv_out "      - name: '[[$inst getInst] getName]'"
+	                    set inv_string ""
+	                    if { "$current_edge" == "1" } {
+	                        set inv_string "!"
+	                    }
+	#puts $csv_out "        clk: '$inv_string$current_clk'"
+	                    set last_clk "$current_clk"
+	                    set last_edge "$current_edge"
+	                } else {
+					set q_name [[[[$inst getInst] getFirstOutput] getNet] getName] 
+					puts $csv_out "[[$inst getInst] getName], $q_name"
+	                }
+	            }
+	        }
+	    }
+	}
+	close $csv_out
+
+} 
 
