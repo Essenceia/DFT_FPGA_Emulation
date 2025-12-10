@@ -81,13 +81,12 @@ proc write_scan_chain_translate { filename block } {
 	                    if { "$current_edge" == "1" } {
 	                        set inv_string "!"
 	                    }
-	#puts $csv_out "        clk: '$inv_string$current_clk'"
+						set clk $inv_string$current_clk
 	                    set last_clk "$current_clk"
 	                    set last_edge "$current_edge"
-	                } else {
-					set q_name [[[[$inst getInst] getFirstOutput] getNet] getName] 
-					puts $csv_out "[[$inst getInst] getName],$q_name"
 	                }
+					set q_name [[[[$inst getInst] getFirstOutput] getNet] getName] 
+					puts $csv_out "[[$inst getInst] getName],$q_name, $clk"
 	            }
 	        }
 	    }
