@@ -75,15 +75,15 @@ always @(posedge clk)
 assign mac_step_o = mac_step_q;
 
 /* Capture MAC output control */ 
-reg [1:0] rd_fsm_q; 
-localparam RD_IDLE = 2'd0;
-localparam RD_0    = 2'd1; 
-localparam RD_1_2  = 2'd2; 
-localparam RD_3    = 2'd3;
+reg [3:0] rd_fsm_q; 
+localparam RD_IDLE  = 4'b0001;
+localparam RD_0     = 4'd0010; 
+localparam RD_1_2   = 4'd0100; 
+localparam RD_3     = 4'b1000;
 
 reg [N-1:0] res_rd_q;
 
-always @(posedge clk) begin
+always @(p -verilog_define VIVADO_SYNTHESIS=1osedge clk) begin
 	if (~rst_n | data_v_i & data_rst_addr_i) begin
 		rd_fsm_q <= RD_IDLE; 
 	end else begin
@@ -109,12 +109,12 @@ assign res_rd_o = res_rd_q;
 
 /* stream captured output to IO */
 reg [N-1:0] res_wr_q;
-reg [2:0] wr_fsm_q; 
-localparam WR_IDLE = 3'd0;
-localparam WR_0    = 3'd1; 
-localparam WR_1    = 3'd2; 
-localparam WR_2    = 3'd3; 
-localparam WR_3    = 3'd4;
+reg [4:0] wr_fsm_q; 
+localparam WR_IDLE = 5'b00001;
+localparam WR_0    = 5'b00010; 
+localparam WR_1    = 5'b00100; 
+localparam WR_2    = 5'b01000; 
+localparam WR_3    = 5'b10000;
 
 always @(posedge clk) begin
 	if (~rst_n | data_v_i & data_rst_addr_i) begin
