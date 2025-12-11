@@ -1,6 +1,20 @@
 set design_offset m_top
 set mux_ref scan_mux
 
+proc init_scan_chain_logging { } {
+	set_msg_config -id "ScanChain 0" -limit -1 -new_severity ERROR	
+	set_msg_config -id "ScanChain 1" -limit -1 -new_severity WARNING	
+	set_msg_config -id "ScanChain 2" -limit -1 -new_severity INFO
+	set_msg_config -id "ScanChain 3" -limit -1 -new_severity WARNING	
+	set_msg_config -id "ScanChain 4" -limit -1 -new_severity ERROR	
+	set_msg_config -id "ScanChain 5" -limit -1 -new_severity WARNING	
+	set_msg_config -id "ScanChain 6" -limit -1 -new_severity ERROR
+	set_msg_config -id "ScanChain 7" -limit -1 -new_severity INFO
+	set_msg_config -id "ScanChain 8" -limit -1 -new_severity ERROR
+	set_msg_config -id "ScanChain 9" -limit -1 -new_severity INFO
+}
+
+
 # scan chain signal remappings, these equivalences are hand written
 proc scan_chain_remapping_read_csv { filename } {
 	set sc_remap [dict create]
@@ -114,15 +128,32 @@ proc set_net_equivalence { scan_chain } {
 	}
 	return $sc_dict
 }
-proc init_scan_chain_logging { } {
-	set_msg_config -id "ScanChain 0" -limit -1 -new_severity ERROR	
-	set_msg_config -id "ScanChain 1" -limit -1 -new_severity WARNING	
-	set_msg_config -id "ScanChain 2" -limit -1 -new_severity INFO
-	set_msg_config -id "ScanChain 3" -limit -1 -new_severity WARNING	
-	set_msg_config -id "ScanChain 4" -limit -1 -new_severity ERROR	
-	set_msg_config -id "ScanChain 5" -limit -1 -new_severity WARNING	
-	set_msg_config -id "ScanChain 6" -limit -1 -new_severity ERROR
-	set_msg_config -id "ScanChain 7" -limit -1 -new_severity INFO
+
+proc log_dict { d } {
+	dict for {key value} $d {
+    	puts "$key $value"
+	}
+}
+
+proc identify_parent_ff { net cells } {
+	foreach c $cells {
+		set p [get_pins -of_objects $net -filter "PARENT_CELL == $c"]
+ 		set pin_name [get_property "REF_PIN_NAME" $p
+		if { [string compare $pin_name "Q"] == 0 } {
+			return $c
+		} 
+	}	
+}
+
+proc get_upstream_ff { net } {
+	set cells [get_cells -of_object $net -filter { PRIMITIVE_GROUP == "FLOP_LATCH" }]
+	set cell [identify_parent_ff $net $cells]
+	if { [ llength $cell ] == 1 } {
+		puts "\[ScanChain 9\] Info: found ff parent for net $net to $cell"
+		return $cell 
+	} else {
+		puts "\[ScanChain 8\] Error: didn't find easily identifiable ff parent for net $net got $cell"
+	} 
 }
 
 proc add_scan_chain { sc_filename sc_equivalence_filename } {
@@ -133,4 +164,8 @@ proc add_scan_chain { sc_filename sc_equivalence_filename } {
 	}
 	set sc [ rework_scan_chain_names $sc ]
 	set net_map [set_net_equivalence $sc]
+	log_dict $net_map
+	dict for {net_name fpga_net} $net_map {
+		get_upstream_ff $fpga_net
+	} 
 }
