@@ -138,7 +138,7 @@ proc log_dict { d } {
 proc identify_parent_ff { net cells } {
 	foreach c $cells {
 		set p [get_pins -of_objects $net -filter "PARENT_CELL == $c"]
- 		set pin_name [get_property "REF_PIN_NAME" $p
+ 		set pin_name [get_property "REF_PIN_NAME" $p]
 		if { [string compare $pin_name "Q"] == 0 } {
 			return $c
 		} 
@@ -147,13 +147,17 @@ proc identify_parent_ff { net cells } {
 
 proc get_upstream_ff { net } {
 	set cells [get_cells -of_object $net -filter { PRIMITIVE_GROUP == "FLOP_LATCH" }]
-	set cell [identify_parent_ff $net $cells]
-	if { [ llength $cell ] == 1 } {
-		puts "\[ScanChain 9\] Info: found ff parent for net $net to $cell"
-		return $cell 
+	if { [ llength $cells ] == 1 } {
+		return $cells 
 	} else {
-		puts "\[ScanChain 8\] Error: didn't find easily identifiable ff parent for net $net got $cell"
+		if { [llength $cells ] > 1 } {
+			set cell [identify_parent_ff $net $cells]
+			if { [llength $cell ] == 1 } { 
+				return $cell 
+			}
+		}
 	} 
+	puts "\[ScanChain 8\] Error: didn't find easily identifiable ff parent for net $net got ([llength $cells]) $cells"
 }
 
 proc add_scan_chain { sc_filename sc_equivalence_filename } {
@@ -164,7 +168,7 @@ proc add_scan_chain { sc_filename sc_equivalence_filename } {
 	}
 	set sc [ rework_scan_chain_names $sc ]
 	set net_map [set_net_equivalence $sc]
-	log_dict $net_map
+	#log_dict $net_map
 	dict for {net_name fpga_net} $net_map {
 		get_upstream_ff $fpga_net
 	} 
