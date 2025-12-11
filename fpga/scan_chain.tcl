@@ -85,14 +85,12 @@ proc search_net_pattern { original_elem elem dic } {
 	return $dic
 }
 
-proc check_net_equivalence { scan_chain } {
+proc set_net_equivalence { scan_chain } {
 	set sc_dict [dict create]
-	puts "Hello"	
 	foreach elem $scan_chain {
 		set pattern {.*}
 		set cell [get_nets -hierarchical -regexp $pattern$elem$pattern ]
 		if {[string compare $cell "" ] == 0 } {
-			#puts "\[ScanChain 1\] Warning: cell not found for scan chain ellement $elem"
 			# check generate blocks
 			set elem2 ""
 			set elem3 ""
@@ -101,13 +99,11 @@ proc check_net_equivalence { scan_chain } {
 			regsub -all {_q} $elem2 {_o.*} elem4
 			set cell2 [get_nets -hierarchical -regexp $pattern$elem2$pattern ]
 			if {[string compare $cell2 "" ] == 0} {
-				#puts "\[ScanChain 3\] Warning: cell not found after rework $elem2 ( $elem )"
 				set cell [get_nets -hierarchical -regexp $pattern$elem3$pattern ]
 				if {[string compare $cell "" ] == 0} {
-					#puts "\[ScanChain 4\] Warning: cell not found after rework $elem3 ( $elem )"
 					set cell [get_nets -hierarchical -regexp $pattern$elem4$pattern ]
 					if {[string compare $cell "" ] == 0} {
-						puts "\[ScanChain 4\] Warning: cell not found after rework $elem4 ( $elem )"
+						puts "\[ScanChain 4\] Error: cell not found after rework $elem4 ( $elem )"
 					} else { 
 						dict set sc_dict $elem $cell
 					}
@@ -120,17 +116,16 @@ proc check_net_equivalence { scan_chain } {
 			
 		} else {
 			dict set sc_dict $elem $cell
-			#puts "\[ScanChain 2\] Info: cell match found for scan chain ellement $elem got $cell"
 		}
 	}
-	#return $sc_dict
+	return $sc_dict
 }
 proc init_scan_chain_logging { } {
 	set_msg_config -id "ScanChain 0" -limit -1 -new_severity ERROR	
 	set_msg_config -id "ScanChain 1" -limit -1 -new_severity WARNING	
 	set_msg_config -id "ScanChain 2" -limit -1 -new_severity INFO
 	set_msg_config -id "ScanChain 3" -limit -1 -new_severity WARNING	
-	set_msg_config -id "ScanChain 4" -limit -1 -new_severity WARNING	
+	set_msg_config -id "ScanChain 4" -limit -1 -new_severity ERROR	
 	set_msg_config -id "ScanChain 5" -limit -1 -new_severity WARNING	
 	set_msg_config -id "ScanChain 6" -limit -1 -new_severity ERROR
 	set_msg_config -id "ScanChain 7" -limit -1 -new_severity INFO
@@ -143,5 +138,5 @@ proc add_scan_chain { sc_filename sc_equivalence_filename } {
 		set sc [ scan_chain_remapping_apply [ scan_chain_remapping_read_csv $sc_equivalence_filename ] $sc ]
 	}
 	set sc [ rework_scan_chain_names $sc ]
-	check_net_equivalence $sc
+	set net_map [set_net_equivalence $sc]
 }
