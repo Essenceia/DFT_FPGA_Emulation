@@ -36,8 +36,6 @@ proc scan_chain_remapping_apply { remap_dict sc_list } {
 
 proc scan_chain_read_csv { filename } {
 	set scan_chain {}
-	set clk_domain {}
-	set instances_id {}
 	set fp [open $filename r]
 
 	while {[gets $fp line] >= 0} {
@@ -48,9 +46,7 @@ proc scan_chain_read_csv { filename } {
 			puts "\[ScanChain 0\] Error: missformed csv line found ! $fields"
 		} else {
 			# trim : remove whitescapes
-			lappend instances_id [string trim [lindex $fields 0]]
 			lappend scan_chain [string trim [lindex $fields 1]]
-			lappend clk_domain [string trim [lindex $fields 2]]
 		}
 	}
 	return $scan_chain
@@ -63,8 +59,6 @@ proc rework_scan_chain_names { scan_chain } {
 		regsub -all {\\} $elem {} elem
 		# replace names that end in '_o' with '_q'
 		regsub {(.*)_o(\[\d+\])*$} $elem {\1_q\2\3\4\5\6} elem
-
-		# remove all generate hierarchical delimiter
 
 		# add back escape sequences
 		regsub -all {\[} $elem {\[} elem
