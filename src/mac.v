@@ -6,6 +6,11 @@
 
 `timescale 1ns / 1ps
 
+`define VIVADO_DONT_TOUCH \
+	`ifdef VIVADO_SYNTHESIS \
+		(* dont_touch = "true" *) \
+	`endif
+
 module mac #(
 	parameter W = 8, // data and weight width
 	parameter N = 2, // matrix dimention
@@ -67,9 +72,9 @@ generate
 endgenerate
 
 /* Systolic array */ 
-
-logic [W-1:0] data_unit[N-1:0][N-1:0];
+`VIVADO_DONT_TOUCH
 logic [W-1:0] data_flow_right[NN-1:0];
+logic [W-1:0] data_unit[N-1:0][N-1:0];
 logic [W-1:0] data_top_unit[N-1:0][N-1:0];
 logic [W-1:0] res_unit[N-1:0][N-1:0];
 

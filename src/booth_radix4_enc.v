@@ -1,10 +1,25 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
+`define VIVADO_DONT_TOUCH \
+	`ifdef VIVADO_SYNTHESIS \
+		(* dont_touch = "true" *) \
+	`endif
+
+`define VIVADO_KEEP \
+	`ifdef VIVADO_SYNTHESIS \
+		(* dont_touch = "true" , keep = "true" *) \
+	`endif
+
+
+
 module booth_radix4_enc_sel(
 	input wire [2:0] mul_i, // multiplier term
 
+`VIVADO_DONT_TOUCH
+`VIVADO_KEEP
 	output wire neg_o,
+`VIVADO_DONT_TOUCH
 	output wire single_o, 
 	output wire shift_o
 );
@@ -32,6 +47,7 @@ wire [8:0] single_mask;
 wire [7:0] shift_mask; 
 wire [8:0] post_shift; 
 
+`VIVADO_DONT_TOUCH
 	booth_radix4_enc_sel m_sel(
 		.mul_i(mul_i),
 		.neg_o(neg),

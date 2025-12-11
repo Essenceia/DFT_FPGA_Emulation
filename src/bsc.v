@@ -11,6 +11,11 @@
 
 `timescale 1ns / 1ps
 
+`define VIVADO_DONT_TOUCH \
+	`ifdef VIVADO_SYNTHESIS \
+		(* dont_touch = "true" *) \
+	`endif
+
 module bsc #(
 	parameter W = 1
 	)(
@@ -75,6 +80,7 @@ module bsc_inner(
 	input wire  mode_i
 );
 wire ff_1_next, ff_2_next;
+`VIVADO_DONT_TOUCH
 reg  ff_1_q, ff_2_q;
 
 assign ff_1_next = shift_i ? scan_i: data_i;

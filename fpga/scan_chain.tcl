@@ -30,8 +30,6 @@ proc rework_scan_chain_names { scan_chain } {
 	foreach elem $scan_chain {
 		# clean up escape characters
 		regsub -all {\\} $elem {} elem
-		# replace names that end in '_q' with '_q_reg'
-		#regsub {(.*)_q(\[\d+\])*$} $elem {\1_q_reg\2\3\4\5\6} elem
 		# replace names that end in '_o' with '_q'
 		regsub {(.*)_o(\[\d+\])*$} $elem {\1_q\2\3\4\5\6} elem
 
@@ -74,12 +72,19 @@ proc check_net_equivalence { scan_chain } {
 			set elem3 ""
 			regsub -all {\.} $elem {.*} elem2
 			regsub -all {_q} $elem2 {_q_reg.*} elem3
+			regsub -all {_q} $elem2 {_o.*} elem4
 			set cell2 [get_nets -hierarchical -regexp $pattern$elem2$pattern ]
 			if {[string compare $cell2 "" ] == 0} {
 				#puts "\[ScanChain 3\] Warning: cell not found after rework $elem2 ( $elem )"
 				set cell [get_nets -hierarchical -regexp $pattern$elem3$pattern ]
 				if {[string compare $cell "" ] == 0} {
-					puts "\[ScanChain 4\] Warning: cell not found after rework $elem3 ( $elem )"
+					#puts "\[ScanChain 4\] Warning: cell not found after rework $elem3 ( $elem )"
+					set cell [get_nets -hierarchical -regexp $pattern$elem4$pattern ]
+					if {[string compare $cell "" ] == 0} {
+						puts "\[ScanChain 4\] Warning: cell not found after rework $elem4 ( $elem )"
+					} else { 
+						dict set sc_dict $elem $cell
+					}
 				} else { 
 					dict set sc_dict $elem $cell
 				}
