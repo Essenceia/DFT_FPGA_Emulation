@@ -32,7 +32,7 @@ module bsc #(
 	input wire  update_i,  // Update DR
 	input wire  mode_i
 );
-
+`VIVADO_DONT_TOUCH
 wire [W-1:0] chain;
 wire [W-1:0] scan_next; 
 
