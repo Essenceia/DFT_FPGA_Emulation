@@ -1,9 +1,41 @@
 set design_offset m_top
 set mux_ref scan_mux
 
+# scan chain signal remappings, these equivalences are hand written
+proc scan_chain_remapping_read_csv { filename } {
+	set_msg_config -id "ScanChain 6" -limit -1 -new_severity ERROR
+	dict create sc_remap
+	set fp [open $filename r]
+
+	while {[gets $fp line] >= 0} {
+    	if {[string trim $line] eq ""} continue
+       
+		set fields [split $line ","]
+		if { [llength $fields] != 2} {
+			puts "\[ScanChain 6\] Error: missformed csv line found, execpting 2 ellements ! $fields"
+		} else {
+			# trim : remove whitescapes
+			set orig [string trim [lindex $fields 0]]
+			set target [string trim [lindex $fields 1]]
+			dict set sc_renamp $orig $target
+		}
+	}
+	return $sc_remap	
+}
+
+proc scan_chain_remapping_apply { remap_dict sc_list }{
+	set new_sc {}
+	foreach elem $sc_list {
+		if { dict exists remap_dict $elem } {
+			set elem [ dict get $elem ]
+		}
+		lapend new_sc $elem
+	}
+	return $new_sc
+}
 
 proc scan_chain_read_csv { filename } {
-	set_msg_config -id "ScanChain 0" -limit -1 -new_severity WARNING	
+	set_msg_config -id "ScanChain 0" -limit -1 -new_severity ERROR	
 	set scan_chain {}
 	set clk_domain {}
 	set instances_id {}
@@ -14,7 +46,7 @@ proc scan_chain_read_csv { filename } {
        
 		set fields [split $line ","]
 		if { [llength $fields] != 3} {
-			puts "\[ScanChain 0\] Warning: missformed csv line found ! $fields"
+			puts "\[ScanChain 0\] Error: missformed csv line found ! $fields"
 		} else {
 			# trim : remove whitescapes
 			lappend instances_id [string trim [lindex $fields 0]]
@@ -98,4 +130,14 @@ proc check_net_equivalence { scan_chain } {
 		}
 	}
 	#return $sc_dict
+}
+
+proc add_scan_chain { sc_filename sc_equivalence_filename } {
+	# read ASIC implementation rendered scan chain
+	set sc [ scan_chain_read_cvs $sc_filename ]
+	if { [string compares $sc_equivalence_filename "" ] == 0 } {
+		set sc [ scan_chain_remapping_apply [ scan_chain_read_cvs $sc_equivalence_filename ] $sc ]
+	}
+	set sc [ rework_scan_chain_names $sc ]
+	check_net_equivalence $sc
 }
