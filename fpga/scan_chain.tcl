@@ -23,7 +23,7 @@ proc scan_chain_remapping_read_csv { filename } {
 	return $sc_remap	
 }
 
-proc scan_chain_remapping_apply { remap_dict sc_list }{
+proc scan_chain_remapping_apply { remap_dict sc_list } {
 	set new_sc {}
 	foreach elem $sc_list {
 		if { dict exists remap_dict $elem } {
@@ -133,9 +133,10 @@ proc check_net_equivalence { scan_chain } {
 }
 
 proc add_scan_chain { sc_filename sc_equivalence_filename } {
+	set_msg_config -id "Common 17-1361" -limit 0 -new_severity WARNING	
 	# read ASIC implementation rendered scan chain
-	set sc [ scan_chain_read_cvs $sc_filename ]
-	if { [string compares $sc_equivalence_filename "" ] == 0 } {
+	set sc [ scan_chain_read_csv $sc_filename ]
+	if { [string compare $sc_equivalence_filename "" ] == 0 } {
 		set sc [ scan_chain_remapping_apply [ scan_chain_read_cvs $sc_equivalence_filename ] $sc ]
 	}
 	set sc [ rework_scan_chain_names $sc ]
