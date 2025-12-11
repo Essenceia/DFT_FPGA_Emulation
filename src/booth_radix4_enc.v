@@ -6,30 +6,22 @@
 		(* dont_touch = "true" *) \
 	`endif
 
-`define VIVADO_KEEP \
-	`ifdef VIVADO_SYNTHESIS \
-		(* dont_touch = "true" , keep = "true" *) \
-	`endif
-
-
-
 module booth_radix4_enc_sel(
+`VIVADO_DONT_TOUCH
 	input wire [2:0] mul_i, // multiplier term
 
-`VIVADO_DONT_TOUCH
-`VIVADO_KEEP
 	output wire neg_o,
 `VIVADO_DONT_TOUCH
 	output wire single_o, 
 	output wire shift_o
 );
-
+wire neg; 
 // assuming I can do an as good job as the synth simulifying this 
 // circiut by hand
 
 assign single_o = (mul_i[0] ^ mul_i[1]);
-assign shift_o = ~(mul_i[0] ^ mul_i[1]) & (mul_i[1]^ mul_i[2]);
-assign neg_o = mul_i[2];
+assign shift_o  = ~(mul_i[0] ^ mul_i[1]) & (mul_i[1]^ mul_i[2]);
+assign neg_o    = mul_i[2];
 
 endmodule
 
