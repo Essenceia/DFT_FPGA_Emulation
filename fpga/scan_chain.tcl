@@ -1,10 +1,9 @@
-# args
 set asic_dff_csv_path "../dft/results/translation-tcl.csv"
 set remap_csv_path "scan_chain_remapping.csv"
-set mux_ref [get_cells -regexp {.*m_smux.*}
-set sci_pin [get_pins -regexp  {.*m_jtag_tap.scan_in_o.*}]
-set sco_pin [get_pins -regexp  {.*m_jtag_tap.scan_out_i.*}]
-set sce_pin [get_pins -regexp  {.*m_jtag_tap.scan_enable_o.*}]
+set mux_ref [get_cells -hier -regexp {.*m_smux.*}
+set sci_pin [get_pins -hier -regexp  {.*m_jtag_tap.scan_in_o.*}]
+set sco_pin [get_pins -hier -regexp  {.*m_jtag_tap.scan_out_i.*}]
+set sce_pin [get_pins -hier -regexp  {.*m_jtag_tap.scan_enable_o.*}]
  
 
 source sc_remap_utils.tcl
