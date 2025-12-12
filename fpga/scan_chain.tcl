@@ -183,7 +183,7 @@ proc search_upstream { net } {
 	set ffs [get_cells -of_object $seg -filter { PRIMITIVE_GROUP == "FLOP_LATCH" }]
 	foreach ff $ffs {
 		# for a ciruit with a single wire between multiple ff : ff0 -> net -> ff1
-		# select which ff the net is downstream of
+		# select ff- for which the net is downstream of
 		if { [validate_net_is_ff_q $ff $seg] == 1 } {
 			return $ff
 		}
