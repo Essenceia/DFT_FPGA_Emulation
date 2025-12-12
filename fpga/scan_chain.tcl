@@ -216,7 +216,7 @@ proc get_upstream_ff { net } {
 	return
 }
 
-proc add_scan_chain { sc_filename sc_equivalence_filename } {
+proc read_scan_chain { sc_filename sc_equivalence_filename } {
 	# read ASIC implementation rendered scan chain
 	set sc [ scan_chain_read_csv $sc_filename ]
 	if { [string compare $sc_equivalence_filename "" ] != 0 } {
@@ -230,4 +230,5 @@ proc add_scan_chain { sc_filename sc_equivalence_filename } {
 		dict set ff_dict $fpga_net [get_upstream_ff $fpga_net]
 	}
 	log_dict $ff_dict
+	return $ff_dict
 }

@@ -41,17 +41,33 @@ proc insert_scan_mux { ff mux_ref sce sci } {
 
 	# connect scan enable	
 	set smux_sce_pin [get_cell_pin $mux "scan_enable_i" ]
-	connect_net -net $sce -object $smux_sce_ppin 
+	connect_net -hierarchical -net $sce -object $smux_sce_ppin 
 
 	# connect scan_i 
 	set smux_sci_pin [get_cell_pin $mux "scan_i" ]
-	connect_net -net $sci -object $smux_sci_pin
+	connect_net -hierarchical -net $sci -object $smux_sci_pin
 
 	# return ff Q net 
 	set q_pin [get_cell_pin $ff "Q"]
 	return [get_pin_net $q_pin]
 }  
 
-	
+proc insert_scan_chain { ff_dict smux_ref sci_pin sco_pin sce_pin } {
+	set sci_net_name "[get_proprty "NAME" $sci_pin]_net"
+	set sci_net [create_net $sci_net_name]
+	connect_net -net $sci_net -object $sci_pin
+
+	set sce_net_name "[get_proprty "NAME" $sce_pin]_net"
+	set sce_net [create_net $sce_net_name]
+	connect_net -net $sce_net -object $sce_pin
+ 
+	set sci $sci_net
+	set sci $sce_net
+	dict for {net ff_cell} $ff_dict {
+		set sci [ insert_scan_mux $ff_cell $smux_ref $sce $sci ]
+	}
+	# get pin connected to sco
+	connect_net -hierarchical -net $sci -object $sco_pin
+}	
 
 
