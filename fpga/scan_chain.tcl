@@ -1,16 +1,15 @@
-set design_offset m_top
-set mux_ref scan_mux
+source sc_netlist_utils.tcl 
 
 proc init_scan_chain_logging { } {
-	set_msg_config -id "ScanChain 0" -limit -1 -new_severity ERROR	
-	set_msg_config -id "ScanChain 1" -limit -1 -new_severity WARNING	
-	set_msg_config -id "ScanChain 2" -limit -1 -new_severity INFO
-	set_msg_config -id "ScanChain 3" -limit -1 -new_severity WARNING	
-	set_msg_config -id "ScanChain 4" -limit -1 -new_severity ERROR	
-	set_msg_config -id "ScanChain 5" -limit -1 -new_severity WARNING	
-	set_msg_config -id "ScanChain 6" -limit -1 -new_severity ERROR
-	set_msg_config -id "ScanChain 7" -limit -1 -new_severity INFO
-	set_msg_config -id "ScanChain 8" -limit -1 -new_severity ERROR
+	set_msg_config -id "ScanChain 0"  -limit -1 -new_severity ERROR	
+	set_msg_config -id "ScanChain 1"  -limit -1 -new_severity WARNING	
+	set_msg_config -id "ScanChain 2"  -limit -1 -new_severity INFO
+	set_msg_config -id "ScanChain 3"  -limit -1 -new_severity WARNING	
+	set_msg_config -id "ScanChain 4"  -limit -1 -new_severity ERROR	
+	set_msg_config -id "ScanChain 5"  -limit -1 -new_severity WARNING	
+	set_msg_config -id "ScanChain 6"  -limit -1 -new_severity ERROR
+	set_msg_config -id "ScanChain 7"  -limit -1 -new_severity INFO
+	set_msg_config -id "ScanChain 8"  -limit -1 -new_severity ERROR
 	set_msg_config -id "ScanChain 9"  -limit -1 -new_severity DEBUG 
 	set_msg_config -id "ScanChain 10" -limit -1 -new_severity DEBUG 
 	set_msg_config -id "ScanChain 11" -limit -1 -new_severity DEBUG 
@@ -135,7 +134,7 @@ proc set_net_equivalence { scan_chain } {
 
 proc log_dict { d } {
 	dict for {key value} $d {
-    	puts "$key $value"
+    	puts "$key   ->   $value"
 	}
 }
 
@@ -226,7 +225,9 @@ proc add_scan_chain { sc_filename sc_equivalence_filename } {
 	set sc [ rework_scan_chain_names $sc ]
 	set net_map [set_net_equivalence $sc]
 	#log_dict $net_map
+	set ff_dict [dict create]
 	dict for {net_name fpga_net} $net_map {
-		get_upstream_ff $fpga_net
-	} 
+		dict set ff_dict $fpga_net [get_upstream_ff $fpga_net]
+	}
+	log_dict $ff_dict
 }

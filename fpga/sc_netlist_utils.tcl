@@ -1,0 +1,57 @@
+# netlist manipulation scripts
+
+# get a ff 
+# get the D pin net 
+# disconnect the D pin net 
+# create a new scan mux cell
+# connect the output of the scan mux cell to the D ff pin 
+# connect the data_i port of the scan mux with the pervious D ff net
+# connect the scan enable to the mux select
+# connect the previous scan out to the scan_data_i port of the mux
+# get the net connected to the ff Q pin, this will be the scan out for the next connection
+
+proc get_cell_pin { ff pin_name } {
+	return [get_pins -of_object $ff -filter { REF_PIN_NAME == $pin_name }] 
+} 
+
+proc get_pin_net { pin } {
+	return [get_nets -of_object $pin]
+}
+
+proc insert_scan_mux { ff mux_ref sce sci } {
+	set d_pin [get_cell_pin $ff "D"]
+	set d_net [get_pin_net $d_pin]
+	# disconnect
+	disconnect_net -objects $d_pin 
+		
+	# create smux
+	set smux_name "[get_property "NAME" ff]_scanmux" 
+	set smux [create_cell -reference $mux_ref $smux_name]
+	
+	# connect smux to D
+	set smux_ff_d_net_name [string concat $smux_name "_d_net"]
+	set smux_ff_d_net [create_net $smux_ff_d_net_name]
+	# get smux out pin
+	set smux_o_pin [get_cell_pin $mux "res_o"]
+	connect_net -net $smux_ff_d_net -objects [$smux_o_pin $d_pin]
+
+	# connect old D net to smux
+	set smux_data_i_pin	[get_cell_pin $mux "data_i" ]
+	connect_net -net $d_net -objects $smux_data_i_pin
+
+	# connect scan enable	
+	set smux_sce_pin [get_cell_pin $mux "scan_enable_i" ]
+	connect_net -net $sce -object $smux_sce_ppin 
+
+	# connect scan_i 
+	set smux_sci_pin [get_cell_pin $mux "scan_i" ]
+	connect_net -net $sci -object $smux_sci_pin
+
+	# return ff Q net 
+	set q_pin [get_cell_pin $ff "Q"]
+	return [get_pin_net $q_pin]
+}  
+
+	
+
+
