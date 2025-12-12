@@ -164,7 +164,7 @@ proc search_through_output_port { net } {
 }
 
 proc validate_net_is_ff_q { ff net } {
-	set q_pin [get_pin -of_object $ff -filter { REF_PIN_NAME == "Q" }]
+	set q_pin [get_pins -of_object $ff -filter { REF_PIN_NAME == "Q" }]
 	set q_net [get_nets -of_object $q_pin]
 	set net_name [get_property "NAME" $net]
 	set q_net_name [get_property "NAME" $q_net]	

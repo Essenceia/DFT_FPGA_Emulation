@@ -19,13 +19,14 @@ proc get_pin_net { pin } {
 }
 
 proc insert_scan_mux { ff mux_ref sce sci } {
+	puts "Inserting scan mux for $ff"
 	set d_pin [get_cell_pin $ff "D"]
 	set d_net [get_pin_net $d_pin]
 	# disconnect
 	disconnect_net -objects $d_pin 
 		
 	# create smux
-	set smux_name "[get_property "NAME" ff]_scanmux" 
+	set smux_name "[get_property "NAME" $ff]_scanmux" 
 	set smux [create_cell -reference $mux_ref $smux_name]
 	
 	# connect smux to D
@@ -53,11 +54,13 @@ proc insert_scan_mux { ff mux_ref sce sci } {
 }  
 
 proc insert_scan_chain { ff_dict smux_ref sci_pin sco_pin sce_pin } {
-	set sci_net_name "[get_proprty "NAME" $sci_pin]_net"
+	puts "0 pin $sci_pin"
+	set sci_net_name "[get_property "NAME" $sci_pin]_net"
 	set sci_net [create_net $sci_net_name]
 	connect_net -net $sci_net -object $sci_pin
 
-	set sce_net_name "[get_proprty "NAME" $sce_pin]_net"
+	puts "1"
+	set sce_net_name "[get_property "NAME" $sce_pin]_net"
 	set sce_net [create_net $sce_net_name]
 	connect_net -net $sce_net -object $sce_pin
  
