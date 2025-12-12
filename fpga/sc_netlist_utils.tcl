@@ -11,7 +11,10 @@
 # get the net connected to the ff Q pin, this will be the scan out for the next connection
 
 proc get_cell_pin { ff pin_name } {
-	return [get_pins -of_object $ff -filter { REF_PIN_NAME == $pin_name }] 
+	puts "\nget pin $pin_name of cell $ff\n"
+	set p [get_pins -of_object $ff -filter "REF_PIN_NAME == $pin_name"] 
+	report_property $p
+	return $p 
 } 
 
 proc get_pin_net { pin } {
@@ -29,6 +32,7 @@ proc insert_scan_mux { ff mux_ref sce sci } {
 	# create smux
 	set smux_name "[get_property "NAME" $ff]_scanmux" 
 	set smux [create_cell -reference $mux_ref $smux_name]
+	report_property $smux 
 	
 	puts "1"
 	# connect smux to D
@@ -36,7 +40,7 @@ proc insert_scan_mux { ff mux_ref sce sci } {
 	set smux_ff_d_net [create_net $smux_ff_d_net_name]
 	# get smux out pin
 	set smux_o_pin [get_cell_pin $smux "res_o"]
-	connect_net -net $smux_ff_d_net -objects [$smux_o_pin $d_pin]
+	connect_net -net $smux_ff_d_net -objects [list $smux_o_pin $d_pin]
 
 	puts "2"
 	# connect old D net to smux
@@ -46,7 +50,7 @@ proc insert_scan_mux { ff mux_ref sce sci } {
 	puts "3"
 	# connect scan enable	
 	set smux_sce_pin [get_cell_pin $smux "scan_enable_i" ]
-	connect_net -hierarchical -net $sce -object $smux_sce_ppin 
+	connect_net -hierarchical -net $sce -object $smux_sce_pin 
 
 	puts "4"
 	# connect scan_i 
@@ -59,13 +63,13 @@ proc insert_scan_mux { ff mux_ref sce sci } {
 }  
 
 proc insert_scan_chain { ff_dict smux_ref sci_pin sco_pin sce_pin } {
-	puts "0 pin $sci_pin"
+	puts "pin $sci_pin"
 	set sci_net_name "[get_property "NAME" $sci_pin]_net"
 	set sci_net [create_net $sci_net_name]
 	disconnect_net -object $sci_pin
 	connect_net -net $sci_net -object $sci_pin
 
-	puts "1 pin $sce_pin"
+	puts "pin $sce_pin"
 	set sce_net_name "[get_property "NAME" $sce_pin]_net"
 	set sce_net [create_net $sce_net_name]
 	disconnect_net -object $sce_pin
@@ -73,7 +77,14 @@ proc insert_scan_chain { ff_dict smux_ref sci_pin sco_pin sce_pin } {
  
 	set sci $sci_net
 	set sce $sce_net
+	
+	# clear all dont_touch properties
+	set_property DONT_TOUCH false [get_nets -hier *]
+	set_property DONT_TOUCH false [get_cells -hier *]
+	
 	dict for {net ff_cell} $ff_dict {
+		#set ff [get_cells $ff_cell]
+		#puts "ff $ff"
 		set sci [ insert_scan_mux $ff_cell $smux_ref $sce $sci ]
 	}
 	# get pin connected to sco
