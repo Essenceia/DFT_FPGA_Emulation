@@ -65,7 +65,7 @@ proc insert_scan_chain { ff_dict smux_ref sci_pin sco_pin sce_pin } {
 	disconnect_net -object $sci_pin
 	connect_net -net $sci_net -object $sci_pin
 
-	puts "1"
+	puts "1 pin $sce_pin"
 	set sce_net_name "[get_property "NAME" $sce_pin]_net"
 	set sce_net [create_net $sce_net_name]
 	disconnect_net -object $sce_pin
