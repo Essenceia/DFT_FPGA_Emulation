@@ -15,10 +15,8 @@ module booth_radix4_enc_sel(
 	output wire single_o, 
 	output wire shift_o
 );
-wire neg; 
 // assuming I can do an as good job as the synth simulifying this 
 // circiut by hand
-
 assign single_o = (mul_i[0] ^ mul_i[1]);
 assign shift_o  = ~(mul_i[0] ^ mul_i[1]) & (mul_i[1]^ mul_i[2]);
 assign neg_o    = mul_i[2];
