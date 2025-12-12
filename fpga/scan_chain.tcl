@@ -12,6 +12,8 @@ proc init_scan_chain_logging { } {
 	set_msg_config -id "ScanChain 7" -limit -1 -new_severity INFO
 	set_msg_config -id "ScanChain 8" -limit -1 -new_severity ERROR
 	set_msg_config -id "ScanChain 9" -limit -1 -new_severity INFO
+	set_msg_config -id "ScanChain 10" -limit -1 -new_severity INFO
+	set_msg_config -id "ScanChain 11" -limit -1 -new_severity ERROR
 }
 
 
@@ -145,19 +147,72 @@ proc identify_parent_ff { net cells } {
 	}	
 }
 
-proc get_upstream_ff { net } {
-	set cells [get_cells -of_object $net -filter { PRIMITIVE_GROUP == "FLOP_LATCH" }]
-	if { [ llength $cells ] == 1 } {
-		return $cells 
-	} else {
-		if { [llength $cells ] > 1 } {
-			set cell [identify_parent_ff $net $cells]
-			if { [llength $cell ] == 1 } { 
-				return $cell 
-			}
+proc search_through_output_port { net } {
+	# get pin connected to net 
+	set p [get_pins -of_object $net] 
+	# go down one level of hierarchy
+	set nl [get_nets -boundary_type lower -of_object $p]
+	# search for the flop driving this net
+	set ff [ get_cells -of_object $nl -filter { PRIMITIVE_GROUP == "FLOP_LATCH" }]
+
+	if { [llength $ff ] != 1 } {
+		#puts "\[ScanChain 11\] Info: can't find flops when puching though module for driving $net got $ff"		
+		return
+	}	
+	return $ff
+}
+
+proc validate_net_is_ff_q { ff net } {
+	set q_pin [get_pin -of_object $ff -filter { REF_PIN_NAME == "Q" }]
+	set q_net [get_nets -of_object $q_pin]
+	set net_name [get_property "NAME" $net]
+	set q_net_name [get_property "NAME" $q_net]	
+	if { [string compare $net_name $q_net_name] != 0 } {
+		puts "\[ScanChain 12\] Info: flops $ff doesn't have $net connected to Q,\ngot $net_name\nexpecting $q_net_name"
+		return 0		
+	}  
+	return 1
+}
+
+proc search_upstream { net } { 
+	# input pin should have the same name as the net
+	#set p [get_pins -of_object $n -filter "NAME == [get_property "NAME" $n]"]
+	#segments gives an ordered list, where the first ellement is the root of the tree
+	set segs [get_nets $net -segments]
+	set seg [lindex $segs 0]
+	set ffs [get_cells -of_object $seg -filter { PRIMITIVE_GROUP == "FLOP_LATCH" }]
+	foreach ff $ffs {
+		# for a ciruit with a single wire between multiple ff : ff0 -> net -> ff1
+		# select which ff the net is downstream of
+		if { [validate_net_is_ff_q $ff $seg] == 1 } {
+			return $ff
 		}
 	} 
-	puts "\[ScanChain 8\] Error: didn't find easily identifiable ff parent for net $net got ([llength $cells]) $cells"
+	puts "\[ScanChain 13\] Info: Failed to find ff connected to $seg got : $ffs, original net $net"
+	return
+}
+
+proc get_upstream_ff { net } {
+	set cell [get_cells -of_object $net -filter { PRIMITIVE_GROUP == "FLOP_LATCH" }]
+	if { [ llength $cell ] == 1 } {
+		return $cell 
+	} 
+	if { [llength $cell ] > 1 } {
+		set cell [identify_parent_ff $net $cell]
+		if { [llength $cell ] == 1 } { 
+			return $cell 
+		}
+	}
+	set cell [ search_through_output_port $net ]
+	if { [llength $cell] == 1 } {
+		return $cell
+	}
+	set cell [ search_upstream $net ]
+	if { [llength $cell ] == 1 } {
+		return $cell
+	}
+	puts "\[ScanChain 8\] Error: didn't find identifiable ff parent for net $net got ([llength $cell]) $cell"
+	return
 }
 
 proc add_scan_chain { sc_filename sc_equivalence_filename } {
