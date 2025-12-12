@@ -11,9 +11,11 @@ proc init_scan_chain_logging { } {
 	set_msg_config -id "ScanChain 6" -limit -1 -new_severity ERROR
 	set_msg_config -id "ScanChain 7" -limit -1 -new_severity INFO
 	set_msg_config -id "ScanChain 8" -limit -1 -new_severity ERROR
-	set_msg_config -id "ScanChain 9" -limit -1 -new_severity INFO
-	set_msg_config -id "ScanChain 10" -limit -1 -new_severity INFO
-	set_msg_config -id "ScanChain 11" -limit -1 -new_severity ERROR
+	set_msg_config -id "ScanChain 9"  -limit -1 -new_severity DEBUG 
+	set_msg_config -id "ScanChain 10" -limit -1 -new_severity DEBUG 
+	set_msg_config -id "ScanChain 11" -limit -1 -new_severity DEBUG 
+	set_msg_config -id "ScanChain 12" -limit -1 -new_severity DEBUG 
+	set_msg_config -id "ScanChain 13" -limit -1 -new_severity DEBUG 
 }
 
 
@@ -156,7 +158,7 @@ proc search_through_output_port { net } {
 	set ff [ get_cells -of_object $nl -filter { PRIMITIVE_GROUP == "FLOP_LATCH" }]
 
 	if { [llength $ff ] != 1 } {
-		#puts "\[ScanChain 11\] Info: can't find flops when puching though module for driving $net got $ff"		
+		puts "\[ScanChain 11\] Debug: can't find flops when puching though module for driving $net got $ff"		
 		return
 	}	
 	return $ff
@@ -168,7 +170,7 @@ proc validate_net_is_ff_q { ff net } {
 	set net_name [get_property "NAME" $net]
 	set q_net_name [get_property "NAME" $q_net]	
 	if { [string compare $net_name $q_net_name] != 0 } {
-		puts "\[ScanChain 12\] Info: flops $ff doesn't have $net connected to Q,\ngot $net_name\nexpecting $q_net_name"
+		puts "\[ScanChain 12\] Debug: flops $ff doesn't have $net connected to Q,\ngot $net_name\nexpecting $q_net_name"
 		return 0		
 	}  
 	return 1
@@ -188,7 +190,7 @@ proc search_upstream { net } {
 			return $ff
 		}
 	} 
-	puts "\[ScanChain 13\] Info: Failed to find ff connected to $seg got : $ffs, original net $net"
+	puts "\[ScanChain 13\] Debug: Failed to find ff connected to $seg got : $ffs, original net $net"
 	return
 }
 
