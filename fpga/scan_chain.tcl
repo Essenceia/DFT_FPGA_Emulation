@@ -17,4 +17,4 @@ puts "sce pin $sce_pin"
 puts "mux ref $mux_ref"
 insert_scan_chain $ff_dict $mux_ref $sci_pin $sco_pin $sce_pin
 
-write_checkpoint emulator/post_scan_chain_insert.dcp
+write_checkpoint -force emulator/post_scan_chain_insert.dcp

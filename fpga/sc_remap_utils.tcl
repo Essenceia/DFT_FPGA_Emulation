@@ -216,6 +216,13 @@ proc get_upstream_ff { net } {
 	return
 }
 
+proc log_remap { net_map ff_dict } {
+	dict for {asic_net fpga_net} $net_map {
+		set fpga_ff [dict get $ff_dict $fpga_net]
+		puts "$asic_net -> $fpga_ff" 
+	}
+}
+
 proc read_scan_chain { sc_filename sc_equivalence_filename } {
 	# read ASIC implementation rendered scan chain
 	set sc [ scan_chain_read_csv $sc_filename ]
@@ -229,6 +236,7 @@ proc read_scan_chain { sc_filename sc_equivalence_filename } {
 	dict for {net_name fpga_net} $net_map {
 		dict set ff_dict $fpga_net [get_upstream_ff $fpga_net]
 	}
-	log_dict $ff_dict
+	#log_dict $ff_dict
+	log_remap $net_map $ff_dict
 	return $ff_dict
 }
